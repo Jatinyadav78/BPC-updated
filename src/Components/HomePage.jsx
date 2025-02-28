@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -5,6 +6,17 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import InputAdornment from "@mui/material/InputAdornment";
+// Import Material UI icons directly
+import SearchIcon from "@mui/icons-material/Search";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import dayjs from "dayjs";
 import "./HomePage.css";
 
@@ -26,11 +38,11 @@ const HomePage = () => {
     "Quarter",
     "DUE YEAR",
     "DUE DATE",
-    "SET WEIGHT(KG)",
-    "TARE WEIGHT(KG)",
-    "NET WEIGHT(KG)",
-    "GROSS WEIGHT(KG)",
-    "VARIATION(KG)",
+    "SET WEIGHT(kg)",
+    "TARE WEIGHT(kg)",
+    "NET WEIGHT()",
+    "GROSS WEIGHT(kg)",
+    "VARIATION(kg)",
     "Weight Status",
     "VALUE LEAK",
     "ORING LEAK",
@@ -150,164 +162,229 @@ const HomePage = () => {
   };
 
   return (
-    <div className="table-container">
-      <div className="button-container">
-        <button onClick={() => setShowPicker(true)} className="sort-button">
-          Filter
-        </button>
-        <button onClick={handleReset} className="reset-button">
-          Reset
-        </button>
-      </div>
-
-      <div className="date-range-display">
-        <span>
-          Date Range: {selectedDates[0].format("YYYY-MM-DD")} to{" "}
-          {selectedDates[1].format("YYYY-MM-DD")}
-        </span>
-      </div>
-
-      <div className="search-bar-container">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearch}
-          placeholder="Search by Cylinder Sr. No."
-          className="search-bar"
-        />
-      </div>
+    <Paper elevation={3} className="table-container">
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h5" component="h2" sx={{ mb: 2, fontWeight: 'bold', color: '#0056b3' }}>
+          Cylinder Quality Control Report
+        </Typography>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <Paper
+            elevation={1}
+            sx={{
+              p: 1,
+              display: 'flex',
+              alignItems: 'center',
+              flex: 1,
+              mr: 2,
+              backgroundColor: '#f5f5f5'
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+              Date Range: {selectedDates[0].format("YYYY-MM-DD")} to {selectedDates[1].format("YYYY-MM-DD")}
+            </Typography>
+          </Paper>
+          
+          <TextField
+            placeholder="Search by Cylinder Sr. No."
+            value={searchQuery}
+            onChange={handleSearch}
+            variant="outlined"
+            size="small"
+            sx={{ width: '300px', mr: 2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          
+          <Stack direction="column" spacing={1}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<FilterAltIcon />}
+              onClick={() => setShowPicker(true)}
+              sx={{ width: '120px' }}
+            >
+              Filter
+            </Button>
+            
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<RestartAltIcon />}
+              onClick={handleReset}
+              sx={{ width: '120px' }}
+            >
+              Reset
+            </Button>
+            
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<FileDownloadIcon />}
+              onClick={handleDownload}
+              sx={{ width: '120px' }}
+            >
+              Export
+            </Button>
+          </Stack>
+        </Box>
+      </Box>
 
       {isLoading && (
-        <div className="loader">
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
           <CircularProgress />
-        </div>
+        </Box>
       )}
 
       {showPicker && (
         <div className="modal-overlay" onClick={() => setShowPicker(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+          <Paper className="modal-box" onClick={(e) => e.stopPropagation()} elevation={5}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Filter Options</Typography>
+            
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <div className="box-date">
                 <DatePicker
                   label="Start Date"
                   value={selectedDates[0]}
                   onChange={(newValue) => setSelectedDates([newValue, selectedDates[1]])}
+                  slotProps={{ textField: { size: 'small', fullWidth: true } }}
                 />
                 <DatePicker
                   label="End Date"
                   value={selectedDates[1]}
                   onChange={(newValue) => setSelectedDates([selectedDates[0], newValue])}
+                  slotProps={{ textField: { size: 'small', fullWidth: true } }}
                 />
               </div>
 
+              <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Variation Range (kg)</Typography>
               <div className="variation-filter">
                 <TextField
-                  label="From (KG)"
+                  label="From"
                   type="number"
                   value={variationRange[0] || ""}
                   onChange={(e) => setVariationRange([Math.max(0, e.target.value || 0), variationRange[1]])}
+                  size="small"
                 />
                 <TextField
-                  label="To (KG)"
+                  label="To"
                   type="number"
                   value={variationRange[1] || ""}
                   onChange={(e) => setVariationRange([variationRange[0], Math.max(0, e.target.value || 0)])}
+                  size="small"
                 />
               </div>
             </LocalizationProvider>
 
-            <button onClick={applyFilters} className="ok-button">
-              OK
-            </button>
-          </div>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+              <Button 
+                variant="outlined" 
+                onClick={() => setShowPicker(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={applyFilters}
+              >
+                Apply Filters
+              </Button>
+            </Box>
+          </Paper>
         </div>
       )}
 
-      <div className="table-wrapper">
-        <div className="frozen-columns">
-          <table>
-            <thead>
-              <tr>
-                {columnNames.slice(0, 3).map((name, index) => (
-                  <th key={index}>{name}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {currentTableData.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td>{dayjs(row.createdAt).format("DD-MM-YYYY")}</td>
-                  <td>{dayjs(row.time, "HH:mm:ss").format("HH:mm")}</td>
-                  <td>{row.cylinderSrNo}</td>
+      <Paper elevation={2} sx={{ mx: 2, mb: 2, overflow: 'hidden' }}>
+        <div className="table-wrapper">
+          <div className="frozen-columns">
+            <table>
+              <thead>
+                <tr>
+                  {columnNames.slice(0, 3).map((name, index) => (
+                    <th key={index}>{name}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="scrollable-table">
-          <table>
-            <thead>
-              <tr>
-                {columnNames.slice(3).map((name, index) => (
-                  <th key={index}>{name}</th>
+              </thead>
+              <tbody>
+                {currentTableData.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    <td>{dayjs(row.createdAt).format("DD-MM-YYYY")}</td>
+                    <td>{dayjs(row.time, "HH:mm:ss").format("HH:mm")}</td>
+                    <td>{row.cylinderSrNo}</td>
+                  </tr>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {currentTableData.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td>{row.quarter}</td>
-                  <td>{row.dueYear}</td>
-                  <td>{row.dueDate}</td>
-                  <td>{row.setWeight}</td>
-                  <td>{row.tareWeight}</td>
-                  <td>{row.netWeight}</td>
-                  <td>{row.grossWeight}</td>
-                  <td>{row.variation}</td>
-                  <td>{row.weightStatus}</td>
-                  <td>{row.valueLeak}</td>
-                  <td>{row.oringLeak}</td>
-                  <td>{row.seal}</td>
-                  <td>{row.bungStatus}</td>
-                  <td>{row.cylinderStatus}</td>
+              </tbody>
+            </table>
+          </div>
+          <div className="scrollable-table">
+            <table>
+              <thead>
+                <tr>
+                  {columnNames.slice(3).map((name, index) => (
+                    <th key={index}>{name}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentTableData.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    <td>{row.quarter}</td>
+                    <td>{row.dueYear}</td>
+                    <td>{row.dueDate}</td>
+                    <td>{row.setWeight}</td>
+                    <td>{row.tareWeight}</td>
+                    <td>{row.netWeight}</td>
+                    <td>{row.grossWeight}</td>
+                    <td>{row.variation}</td>
+                    <td>{row.weightStatus}</td>
+                    <td>{row.valueLeak}</td>
+                    <td>{row.oringLeak}</td>
+                    <td>{row.seal}</td>
+                    <td>{row.bungStatus}</td>
+                    <td>{row.cylinderStatus}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </Paper>
 
-      <div className="pagination-container">
-        <div className="pagination">
-          <button
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className="pagination-button"
           >
             Previous
-          </button>
+          </Button>
           {[...Array(totalPages).keys()].map((_, index) => (
-            <button
+            <Button
               key={index}
+              variant={currentPage === index + 1 ? "contained" : "outlined"}
+              color="primary"
               onClick={() => handlePageChange(index + 1)}
-              className={`pagination-button ${currentPage === index + 1 ? "active" : ""}`}
             >
               {index + 1}
-            </button>
+            </Button>
           ))}
-          <button
+          <Button
+            variant="outlined"
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className="pagination-button"
           >
             Next
-          </button>
-        </div>
-        <button onClick={handleDownload} className="download-button">
-          Export
-        </button>
-      </div>
-    </div>
+          </Button>
+        </Stack>
+      </Box>
+    </Paper>
   );
 };
 
