@@ -57,11 +57,11 @@ const HomePage = () => {
     "Quarter",
     "DUE YEAR",
     "DUE DATE",
-    "SET WEIGHT(kg)",
-    "TARE WEIGHT(kg)",
-    "NET WEIGHT()",
-    "GROSS WEIGHT(kg)",
-    "VARIATION(kg)",
+    "SET WEIGHT(Kg)",
+    "TARE WEIGHT(Kg)",
+    "NET WEIGHT(Kg)",
+    "GROSS WEIGHT(Kg)",
+    "VARIATION(Kg)",
     "Weight Status",
     "VALUE LEAK",
     "ORING LEAK",
@@ -881,7 +881,7 @@ const HomePage = () => {
                   fontWeight: 'bold'
                 }}
               >
-                Variation Range (kg)
+                Variation Range (Kg)
               </Typography>
               <div className="variation-filter">
                 <TextField
@@ -952,6 +952,29 @@ export default HomePage;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//This Second code is a very simple code for a basic website
+
+
+
 // import React, { useState, useRef } from "react";
 // import * as XLSX from "xlsx";
 // import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -997,11 +1020,11 @@ export default HomePage;
 //     "Quarter",
 //     "DUE YEAR",
 //     "DUE DATE",
-//     "SET WEIGHT(kg)",
-//     "TARE WEIGHT(kg)",
-//     "NET WEIGHT()",
-//     "GROSS WEIGHT(kg)",
-//     "VARIATION(kg)",
+//     "SET WEIGHT(Kg)",
+//     "TARE WEIGHT(Kg)",
+//     "NET WEIGHT(Kg)",
+//     "GROSS WEIGHT(Kg)",
+//     "VARIATION(Kg)",
 //     "Weight Status",
 //     "VALUE LEAK",
 //     "ORING LEAK",
@@ -1381,3 +1404,29 @@ export default HomePage;
 // };
 
 // export default HomePage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
