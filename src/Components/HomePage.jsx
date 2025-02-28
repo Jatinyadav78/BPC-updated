@@ -1,949 +1,4 @@
 
-// import React, { useState, useRef, useEffect } from "react";
-// import * as XLSX from "xlsx";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import CircularProgress from "@mui/material/CircularProgress";
-// import TextField from "@mui/material/TextField";
-// import Button from "@mui/material/Button";
-// import Box from "@mui/material/Box";
-// import Paper from "@mui/material/Paper";
-// import Typography from "@mui/material/Typography";
-// import Stack from "@mui/material/Stack";
-// import InputAdornment from "@mui/material/InputAdornment";
-// import Chip from "@mui/material/Chip";
-// import Popover from "@mui/material/Popover";
-// import Container from "@mui/material/Container";
-// import Divider from "@mui/material/Divider";
-// import Fade from "@mui/material/Fade";
-// import Tooltip from "@mui/material/Tooltip";
-// import Badge from "@mui/material/Badge";
-// import Alert from "@mui/material/Alert";
-// import { motion } from "framer-motion";
-
-// // Import Material UI icons
-// import SearchIcon from "@mui/icons-material/Search";
-// import FilterAltIcon from "@mui/icons-material/FilterAlt";
-// import RestartAltIcon from "@mui/icons-material/RestartAlt";
-// import FileDownloadIcon from "@mui/icons-material/FileDownload";
-// import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-// import TuneIcon from "@mui/icons-material/Tune";
-// import RefreshIcon from "@mui/icons-material/Refresh";
-// import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-// import ErrorIcon from "@mui/icons-material/Error";
-// import InfoIcon from "@mui/icons-material/Info";
-// import dayjs from "dayjs";
-// import "./HomePage.css";
-
-// const HomePage = () => {
-//   const [data, setData] = useState([]);
-//   const [filteredData, setFilteredData] = useState([]);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [selectedDates, setSelectedDates] = useState([dayjs(), dayjs()]);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [variationRange, setVariationRange] = useState([null, null]);
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
-//   const [activeFilters, setActiveFilters] = useState(0);
-//   const [dataLoaded, setDataLoaded] = useState(false);
-//   const filterRef = useRef(null);
-//   const rowsPerPage = 10;
-
-//   const columnNames = [
-//     "Date",
-//     "Time",
-//     "Cylinder Sr. No.",
-//     "Quarter",
-//     "DUE YEAR",
-//     "DUE DATE",
-//     "SET WEIGHT(kg)",
-//     "TARE WEIGHT(kg)",
-//     "NET WEIGHT()",
-//     "GROSS WEIGHT(kg)",
-//     "VARIATION(kg)",
-//     "Weight Status",
-//     "VALUE LEAK",
-//     "ORING LEAK",
-//     "SEAL",
-//     "BUNG STATUS",
-//     "CYLINDER STATUS",
-//   ];
-
-//   // Enhanced mock data for demonstration
-//   const mockData = [
-//     {
-//       createdAt: dayjs().format("YYYY-MM-DD"),
-//       time: "09:00:00",
-//       cylinderSrNo: "CYL001",
-//       quarter: "Q1",
-//       dueYear: "2025",
-//       dueDate: "2025-12-31",
-//       setWeight: "14.2",
-//       tareWeight: "13.2",
-//       netWeight: "1.0",
-//       grossWeight: "14.2",
-//       variation: "0.0",
-//       weightStatus: "OK",
-//       valueLeak: "NO",
-//       oringLeak: "NO",
-//       seal: "OK",
-//       bungStatus: "OK",
-//       cylinderStatus: "PASS"
-//     },
-//     {
-//       createdAt: dayjs().subtract(1, 'day').format("YYYY-MM-DD"),
-//       time: "10:15:00",
-//       cylinderSrNo: "CYL002",
-//       quarter: "Q2",
-//       dueYear: "2024",
-//       dueDate: "2024-06-30",
-//       setWeight: "14.2",
-//       tareWeight: "13.0",
-//       netWeight: "1.2",
-//       grossWeight: "14.2",
-//       variation: "0.0",
-//       weightStatus: "OK",
-//       valueLeak: "NO",
-//       oringLeak: "NO",
-//       seal: "OK",
-//       bungStatus: "OK",
-//       cylinderStatus: "PASS"
-//     },
-//     {
-//       createdAt: dayjs().subtract(2, 'day').format("YYYY-MM-DD"),
-//       time: "11:30:00",
-//       cylinderSrNo: "CYL003",
-//       quarter: "Q1",
-//       dueYear: "2025",
-//       dueDate: "2025-03-15",
-//       setWeight: "14.2",
-//       tareWeight: "13.1",
-//       netWeight: "1.1",
-//       grossWeight: "14.2",
-//       variation: "0.0",
-//       weightStatus: "OK",
-//       valueLeak: "YES",
-//       oringLeak: "NO",
-//       seal: "DAMAGED",
-//       bungStatus: "OK",
-//       cylinderStatus: "FAIL"
-//     },
-//     {
-//       createdAt: dayjs().subtract(3, 'day').format("YYYY-MM-DD"),
-//       time: "14:45:00",
-//       cylinderSrNo: "CYL004",
-//       quarter: "Q3",
-//       dueYear: "2024",
-//       dueDate: "2024-09-20",
-//       setWeight: "14.2",
-//       tareWeight: "13.3",
-//       netWeight: "0.9",
-//       grossWeight: "14.2",
-//       variation: "0.0",
-//       weightStatus: "OK",
-//       valueLeak: "NO",
-//       oringLeak: "YES",
-//       seal: "OK",
-//       bungStatus: "DAMAGED",
-//       cylinderStatus: "FAIL"
-//     },
-//     {
-//       createdAt: dayjs().subtract(4, 'day').format("YYYY-MM-DD"),
-//       time: "16:00:00",
-//       cylinderSrNo: "CYL005",
-//       quarter: "Q4",
-//       dueYear: "2023",
-//       dueDate: "2023-12-10",
-//       setWeight: "14.2",
-//       tareWeight: "13.4",
-//       netWeight: "0.8",
-//       grossWeight: "14.2",
-//       variation: "0.0",
-//       weightStatus: "UNDERWEIGHT",
-//       valueLeak: "NO",
-//       oringLeak: "NO",
-//       seal: "OK",
-//       bungStatus: "OK",
-//       cylinderStatus: "FAIL"
-//     }
-//   ];
-
-//   useEffect(() => {
-//     // Auto-fetch data on component mount
-//     fetchData();
-//   }, []);
-
-//   const fetchData = async () => {
-//     setIsLoading(true);
-//     try {
-//       // Simulate API call with mock data
-//       setTimeout(() => {
-//         setData(mockData);
-//         setFilteredData(mockData);
-//         setIsLoading(false);
-//         setDataLoaded(true);
-        
-//         // Count active filters
-//         let count = 0;
-//         if (searchQuery) count++;
-//         if (variationRange[0] !== null || variationRange[1] !== null) count++;
-//         setActiveFilters(count);
-//       }, 1000);
-//     } catch (error) {
-//       console.error("Error fetching data:", error);
-//       alert("Failed to fetch data. Please try again.");
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const applyFilters = () => {
-//     setIsLoading(true);
-    
-//     setTimeout(() => {
-//       // Apply date range filter
-//       let filtered = mockData.filter(item => {
-//         const itemDate = dayjs(item.createdAt);
-//         return itemDate.isAfter(selectedDates[0]) && itemDate.isBefore(selectedDates[1]);
-//       });
-      
-//       // Apply variation range filter if set
-//       if (variationRange[0] !== null || variationRange[1] !== null) {
-//         filtered = filtered.filter(item => {
-//           const variation = parseFloat(item.variation);
-//           if (variationRange[0] !== null && variationRange[1] !== null) {
-//             return variation >= variationRange[0] && variation <= variationRange[1];
-//           } else if (variationRange[0] !== null) {
-//             return variation >= variationRange[0];
-//           } else if (variationRange[1] !== null) {
-//             return variation <= variationRange[1];
-//           }
-//           return true;
-//         });
-//       }
-      
-//       setFilteredData(filtered);
-//       setIsLoading(false);
-      
-//       // Count active filters
-//       let count = 0;
-//       if (searchQuery) count++;
-//       if (variationRange[0] !== null || variationRange[1] !== null) count++;
-//       setActiveFilters(count);
-//     }, 800);
-    
-//     setFilterAnchorEl(null);
-//     setCurrentPage(1);
-//   };
-
-//   const handleSearch = (event) => {
-//     setSearchQuery(event.target.value);
-    
-//     // Update active filters count
-//     let count = 0;
-//     if (event.target.value) count++;
-//     if (variationRange[0] !== null || variationRange[1] !== null) count++;
-//     setActiveFilters(count);
-//   };
-
-//   const filteredBySearch = filteredData.filter((row) =>
-//     row.cylinderSrNo.toLowerCase().includes(searchQuery.toLowerCase())
-//   );
-
-//   const totalPages = Math.ceil(filteredBySearch.length / rowsPerPage);
-//   const indexOfLastRow = currentPage * rowsPerPage;
-//   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-//   const currentTableData = filteredBySearch.slice(indexOfFirstRow, indexOfLastRow);
-
-//   const handleNextPage = () => {
-//     if (currentPage < totalPages) setCurrentPage((prevPage) => prevPage + 1);
-//   };
-
-//   const handlePreviousPage = () => {
-//     if (currentPage > 1) setCurrentPage((prevPage) => prevPage - 1);
-//   };
-
-//   const handlePageChange = (page) => {
-//     setCurrentPage(page);
-//   };
-
-//   const handleDownload = () => {
-//     setIsLoading(true);
-    
-//     setTimeout(() => {
-//       const workbook = XLSX.utils.book_new();
-//       const worksheetData = [
-//         columnNames,
-//         ...filteredBySearch.map((item) => [
-//           dayjs(item.createdAt).format("DD-MM-YYYY") || "N/A",
-//           dayjs(item.time, "HH:mm:ss").format("HH:mm") || "N/A",
-//           item.cylinderSrNo || "N/A",
-//           item.quarter || "N/A",
-//           item.dueYear || "N/A",
-//           item.dueDate || "N/A",
-//           item.setWeight || "N/A",
-//           item.tareWeight || "N/A",
-//           item.netWeight || "N/A",
-//           item.grossWeight || "N/A",
-//           item.variation || "N/A",
-//           item.weightStatus || "N/A",
-//           item.valueLeak || "N/A",
-//           item.oringLeak || "N/A",
-//           item.seal || "N/A",
-//           item.bungStatus || "N/A",
-//           item.cylinderStatus || "N/A",
-//         ]),
-//       ];
-
-//       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-//       XLSX.utils.book_append_sheet(workbook, worksheet, "SQC Report");
-//       XLSX.writeFile(workbook, "SQC_Report.xlsx");
-//       setIsLoading(false);
-//     }, 800);
-//   };
-
-//   const handleReset = () => {
-//     setFilteredData(mockData);
-//     setSelectedDates([dayjs(), dayjs()]);
-//     setSearchQuery("");
-//     setVariationRange([null, null]);
-//     setFilterAnchorEl(null);
-//     setCurrentPage(1);
-//     setActiveFilters(0);
-//   };
-
-//   const handleFilterClick = (event) => {
-//     setFilterAnchorEl(event.currentTarget);
-//   };
-
-//   const handleFilterClose = () => {
-//     setFilterAnchorEl(null);
-//   };
-
-//   const handleDateRangeClick = () => {
-//     // Open the filter dropdown when date range is clicked
-//     setFilterAnchorEl(filterRef.current);
-//   };
-
-//   const open = Boolean(filterAnchorEl);
-//   const id = open ? 'filter-popover' : undefined;
-
-//   // Get status color based on cylinder status
-//   const getStatusColor = (status) => {
-//     switch(status) {
-//       case 'PASS':
-//         return '#28a745';
-//       case 'FAIL':
-//         return '#dc3545';
-//       default:
-//         return '#6c757d';
-//     }
-//   };
-
-//   // Get status color for specific checks
-//   const getCheckColor = (value) => {
-//     if (value === 'OK' || value === 'NO') return '#28a745';
-//     if (value === 'DAMAGED' || value === 'YES' || value === 'UNDERWEIGHT') return '#dc3545';
-//     return '#6c757d';
-//   };
-
-//   return (
-//     <Container maxWidth="xl" sx={{ py: 3 }}>
-//       <Paper 
-//         component={motion.div}
-//         initial={{ opacity: 0, y: 20 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.5 }}
-//         elevation={3} 
-//         sx={{ 
-//           borderRadius: 3, 
-//           overflow: 'hidden',
-//           boxShadow: '0 10px 30px rgba(0,0,0,0.08)'
-//         }}
-//       >
-//         <Box sx={{ 
-//           p: 3, 
-//           background: 'linear-gradient(120deg, #0056b3, #0077cc)',
-//           color: 'white'
-//         }}>
-//           <Typography 
-//             variant="h5" 
-//             component="h2" 
-//             sx={{ 
-//               fontWeight: 'bold', 
-//               mb: 1,
-//               display: 'flex',
-//               alignItems: 'center',
-//               gap: 1
-//             }}
-//           >
-//             <TuneIcon /> Cylinder Quality Control Report
-//           </Typography>
-//           <Typography variant="body2">
-//             Monitor and analyze cylinder quality metrics with comprehensive filtering and export options
-//           </Typography>
-//         </Box>
-        
-//         <Box sx={{ p: 3, bgcolor: '#f8f9fa' }}>
-//           <Box sx={{ 
-//             display: 'flex', 
-//             alignItems: 'center', 
-//             mb: 3, 
-//             flexWrap: 'wrap', 
-//             gap: 2,
-//             justifyContent: 'space-between'
-//           }}>
-//             <Tooltip title="Click to change date range">
-//               <Chip
-//                 label={`Date Range: ${selectedDates[0].format("DD MMM YYYY")} - ${selectedDates[1].format("DD MMM YYYY")}`}
-//                 onClick={handleDateRangeClick}
-//                 color="primary"
-//                 variant="outlined"
-//                 icon={<CalendarMonthIcon />}
-//                 sx={{ 
-//                   height: '40px', 
-//                   borderRadius: '20px',
-//                   px: 1,
-//                   '& .MuiChip-label': { 
-//                     fontWeight: 'medium',
-//                     fontSize: '0.9rem'
-//                   }
-//                 }}
-//               />
-//             </Tooltip>
-            
-//             <Box sx={{ 
-//               display: 'flex', 
-//               alignItems: 'center', 
-//               gap: 1.5,
-//               flexWrap: 'wrap'
-//             }}>
-//               <TextField
-//                 placeholder="Search by Cylinder Sr. No."
-//                 value={searchQuery}
-//                 onChange={handleSearch}
-//                 variant="outlined"
-//                 size="small"
-//                 sx={{ 
-//                   width: '240px',
-//                   '& .MuiOutlinedInput-root': {
-//                     borderRadius: '20px',
-//                     bgcolor: 'white'
-//                   }
-//                 }}
-//                 InputProps={{
-//                   startAdornment: (
-//                     <InputAdornment position="start">
-//                       <SearchIcon color="primary" />
-//                     </InputAdornment>
-//                   ),
-//                 }}
-//               />
-              
-//               <Tooltip title="Open filter options">
-//                 <Badge badgeContent={activeFilters} color="error" overlap="circular">
-//                   <Button
-//                     variant="contained"
-//                     startIcon={<FilterAltIcon />}
-//                     onClick={handleFilterClick}
-//                     ref={filterRef}
-//                     color="primary"
-//                     sx={{ 
-//                       borderRadius: '20px',
-//                       px: 2,
-//                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-//                     }}
-//                   >
-//                     FILTER
-//                   </Button>
-//                 </Badge>
-//               </Tooltip>
-              
-//               <Tooltip title="Reset all filters">
-//                 <Button
-//                   variant="outlined"
-//                   startIcon={<RestartAltIcon />}
-//                   onClick={handleReset}
-//                   color="secondary"
-//                   sx={{ 
-//                     borderRadius: '20px',
-//                     px: 2
-//                   }}
-//                 >
-//                   RESET
-//                 </Button>
-//               </Tooltip>
-              
-//               <Tooltip title="Export data to Excel">
-//                 <Button
-//                   variant="contained"
-//                   startIcon={<FileDownloadIcon />}
-//                   onClick={handleDownload}
-//                   color="success"
-//                   sx={{ 
-//                     borderRadius: '20px',
-//                     px: 2,
-//                     bgcolor: '#28a745',
-//                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-//                   }}
-//                 >
-//                   EXPORT
-//                 </Button>
-//               </Tooltip>
-              
-//               <Tooltip title="Refresh data">
-//                 <Button
-//                   variant="outlined"
-//                   color="primary"
-//                   onClick={fetchData}
-//                   sx={{ 
-//                     minWidth: '40px',
-//                     width: '40px',
-//                     height: '40px',
-//                     borderRadius: '50%',
-//                     p: 0
-//                   }}
-//                 >
-//                   <RefreshIcon />
-//                 </Button>
-//               </Tooltip>
-//             </Box>
-//           </Box>
-//         </Box>
-
-//         {isLoading && (
-//           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-//             <CircularProgress size={60} thickness={4} />
-//           </Box>
-//         )}
-
-//         {!isLoading && dataLoaded && filteredBySearch.length === 0 && (
-//           <Box sx={{ p: 4, textAlign: 'center' }}>
-//             <Alert 
-//               severity="info" 
-//               icon={<InfoIcon fontSize="large" />}
-//               sx={{ 
-//                 mb: 2, 
-//                 justifyContent: 'center',
-//                 '& .MuiAlert-message': { fontSize: '1rem' }
-//               }}
-//             >
-//               No data found matching your search criteria
-//             </Alert>
-//             <Button 
-//               variant="contained" 
-//               color="primary" 
-//               startIcon={<RestartAltIcon />}
-//               onClick={handleReset}
-//               sx={{ mt: 2 }}
-//             >
-//               Reset Filters
-//             </Button>
-//           </Box>
-//         )}
-
-//         {!isLoading && dataLoaded && filteredBySearch.length > 0 && (
-//           <Fade in={!isLoading}>
-//             <Box>
-//               <Paper elevation={0} sx={{ mx: 3, mb: 3, overflow: 'hidden', borderRadius: 2, border: '1px solid #e0e0e0' }}>
-//                 <div className="table-wrapper">
-//                   <div className="frozen-columns">
-//                     <table>
-//                       <thead>
-//                         <tr>
-//                           {columnNames.slice(0, 3).map((name, index) => (
-//                             <th key={index} style={{ 
-//                               backgroundColor: '#f0f7ff', 
-//                               color: '#0056b3',
-//                               borderBottom: '2px solid #0056b3'
-//                             }}>
-//                               {name}
-//                             </th>
-//                           ))}
-//                         </tr>
-//                       </thead>
-//                       <tbody>
-//                         {currentTableData.map((row, rowIndex) => (
-//                           <tr key={rowIndex} style={{ 
-//                             backgroundColor: rowIndex % 2 === 0 ? '#ffffff' : '#f9f9f9',
-//                             transition: 'background-color 0.2s'
-//                           }}>
-//                             <td>{dayjs(row.createdAt).format("DD-MM-YYYY")}</td>
-//                             <td>{dayjs(row.time, "HH:mm:ss").format("HH:mm")}</td>
-//                             <td style={{ fontWeight: 'bold' }}>{row.cylinderSrNo}</td>
-//                           </tr>
-//                         ))}
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                   <div className="scrollable-table">
-//                     <table>
-//                       <thead>
-//                         <tr>
-//                           {columnNames.slice(3).map((name, index) => (
-//                             <th key={index} style={{ 
-//                               backgroundColor: '#f0f7ff', 
-//                               color: '#0056b3',
-//                               borderBottom: '2px solid #0056b3'
-//                             }}>
-//                               {name}
-//                             </th>
-//                           ))}
-//                         </tr>
-//                       </thead>
-//                       <tbody>
-//                         {currentTableData.map((row, rowIndex) => (
-//                           <tr key={rowIndex} style={{ 
-//                             backgroundColor: rowIndex % 2 === 0 ? '#ffffff' : '#f9f9f9',
-//                             transition: 'background-color 0.2s'
-//                           }}>
-//                             <td>{row.quarter}</td>
-//                             <td>{row.dueYear}</td>
-//                             <td>{row.dueDate}</td>
-//                             <td>{row.setWeight}</td>
-//                             <td>{row.tareWeight}</td>
-//                             <td>{row.netWeight}</td>
-//                             <td>{row.grossWeight}</td>
-//                             <td>{row.variation}</td>
-//                             <td style={{ 
-//                               color: getCheckColor(row.weightStatus),
-//                               fontWeight: 'bold'
-//                             }}>
-//                               {row.weightStatus}
-//                             </td>
-//                             <td style={{ 
-//                               color: getCheckColor(row.valueLeak),
-//                               fontWeight: 'bold'
-//                             }}>
-//                               {row.valueLeak}
-//                             </td>
-//                             <td style={{ 
-//                               color: getCheckColor(row.oringLeak),
-//                               fontWeight: 'bold'
-//                             }}>
-//                               {row.oringLeak}
-//                             </td>
-//                             <td style={{ 
-//                               color: getCheckColor(row.seal),
-//                               fontWeight: 'bold'
-//                             }}>
-//                               {row.seal}
-//                             </td>
-//                             <td style={{ 
-//                               color: getCheckColor(row.bungStatus),
-//                               fontWeight: 'bold'
-//                             }}>
-//                               {row.bungStatus}
-//                             </td>
-//                             <td style={{ 
-//                               backgroundColor: getStatusColor(row.cylinderStatus),
-//                               color: 'white',
-//                               fontWeight: 'bold',
-//                               borderRadius: '4px'
-//                             }}>
-//                               {row.cylinderStatus === 'PASS' ? (
-//                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-//                                   <CheckCircleIcon fontSize="small" /> PASS
-//                                 </Box>
-//                               ) : (
-//                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-//                                   <ErrorIcon fontSize="small" /> FAIL
-//                                 </Box>
-//                               )}
-//                             </td>
-//                           </tr>
-//                         ))}
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                 </div>
-//               </Paper>
-
-//               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, mb: 3 }}>
-//                 <Typography variant="body2" color="text.secondary">
-//                   Showing {indexOfFirstRow + 1}-{Math.min(indexOfLastRow, filteredBySearch.length)} of {filteredBySearch.length} records
-//                 </Typography>
-                
-//                 <Stack direction="row" spacing={1}>
-//                   <Button
-//                     variant="outlined"
-//                     onClick={handlePreviousPage}
-//                     disabled={currentPage === 1}
-//                     sx={{ borderRadius: '20px', minWidth: '40px' }}
-//                   >
-//                     Prev
-//                   </Button>
-//                   {totalPages <= 5 ? (
-//                     [...Array(totalPages).keys()].map((_, index) => (
-//                       <Button
-//                         key={index}
-//                         variant={currentPage === index + 1 ? "contained" : "outlined"}
-//                         color="primary"
-//                         onClick={() => handlePageChange(index + 1)}
-//                         sx={{ 
-//                           borderRadius: '50%', 
-//                           minWidth: '40px',
-//                           width: '40px',
-//                           height: '40px',
-//                           p: 0
-//                         }}
-//                       >
-//                         {index + 1}
-//                       </Button>
-//                     ))
-//                   ) : (
-//                     <>
-//                       {currentPage > 2 && (
-//                         <Button
-//                           variant="outlined"
-//                           color="primary"
-//                           onClick={() => handlePageChange(1)}
-//                           sx={{ 
-//                             borderRadius: '50%', 
-//                             minWidth: '40px',
-//                             width: '40px',
-//                             height: '40px',
-//                             p: 0
-//                           }}
-//                         >
-//                           1
-//                         </Button>
-//                       )}
-                      
-//                       {currentPage > 3 && (
-//                         <Typography variant="body1" sx={{ alignSelf: 'center' }}>...</Typography>
-//                       )}
-                      
-//                       {currentPage > 1 && (
-//                         <Button
-//                           variant="outlined"
-//                           color="primary"
-//                           onClick={() => handlePageChange(currentPage - 1)}
-//                           sx={{ 
-//                             borderRadius: '50%', 
-//                             minWidth: '40px',
-//                             width: '40px',
-//                             height: '40px',
-//                             p: 0
-//                           }}
-//                         >
-//                           {currentPage - 1}
-//                         </Button>
-//                       )}
-                      
-//                       <Button
-//                         variant="contained"
-//                         color="primary"
-//                         sx={{ 
-//                           borderRadius: '50%', 
-//                           minWidth: '40px',
-//                           width: '40px',
-//                           height: '40px',
-//                           p: 0
-//                         }}
-//                       >
-//                         {currentPage}
-//                       </Button>
-                      
-//                       {currentPage < totalPages && (
-//                         <Button
-//                           variant="outlined"
-//                           color="primary"
-//                           onClick={() => handlePageChange(currentPage + 1)}
-//                           sx={{ 
-//                             borderRadius: '50%', 
-//                             minWidth: '40px',
-//                             width: '40px',
-//                             height: '40px',
-//                             p: 0
-//                           }}
-//                         >
-//                           {currentPage + 1}
-//                         </Button>
-//                       )}
-                      
-//                       {currentPage < totalPages - 2 && (
-//                         <Typography variant="body1" sx={{ alignSelf: 'center' }}>...</Typography>
-//                       )}
-                      
-//                       {currentPage < totalPages - 1 && (
-//                         <Button
-//                           variant="outlined"
-//                           color="primary"
-//                           onClick={() => handlePageChange(totalPages)}
-//                           sx={{ 
-//                             borderRadius: '50%', 
-//                             minWidth: '40px',
-//                             width: '40px',
-//                             height: '40px',
-//                             p: 0
-//                           }}
-//                         >
-//                           {totalPages}
-//                         </Button>
-//                       )}
-//                     </>
-//                   )}
-//                   <Button
-//                     variant="outlined"
-//                     onClick={handleNextPage}
-//                     disabled={currentPage === totalPages}
-//                     sx={{ borderRadius: '20px', minWidth: '40px' }}
-//                   >
-//                     Next
-//                   </Button>
-//                 </Stack>
-//               </Box>
-//             </Box>
-//           </Fade>
-//         )}
-
-//         <Popover
-//           id={id}
-//           open={open}
-//           anchorEl={filterAnchorEl}
-//           onClose={handleFilterClose}
-//           anchorOrigin={{
-//             vertical: 'bottom',
-//             horizontal: 'left',
-//           }}
-//           transformOrigin={{
-//             vertical: 'top',
-//             horizontal: 'left',
-//           }}
-//           PaperProps={{
-//             sx: { 
-//               borderRadius: 2,
-//               boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
-//             }
-//           }}
-//         >
-//           <Paper sx={{ p: 3, width: '350px' }}>
-//             <Typography 
-//               variant="h6" 
-//               sx={{ 
-//                 mb: 2, 
-//                 display: 'flex', 
-//                 alignItems: 'center', 
-//                 gap: 1,
-//                 color: '#0056b3'
-//               }}
-//             >
-//               <FilterAltIcon /> Filter Options
-//             </Typography>
-            
-//             <Divider sx={{ mb: 2 }} />
-            
-//             <LocalizationProvider dateAdapter={AdapterDayjs}>
-//               <Typography 
-//                 variant="subtitle2" 
-//                 sx={{ 
-//                   mb: 1, 
-//                   color: '#555',
-//                   fontWeight: 'bold'
-//                 }}
-//               >
-//                 Date Range
-//               </Typography>
-//               <div className="box-date">
-//                 <DatePicker
-//                   label="Start Date"
-//                   value={selectedDates[0]}
-//                   onChange={(newValue) => setSelectedDates([newValue, selectedDates[1]])}
-//                   slotProps={{ 
-//                     textField: { 
-//                       size: 'small', 
-//                       fullWidth: true,
-//                       sx: { mb: 2 }
-//                     } 
-//                   }}
-//                 />
-//                 <DatePicker
-//                   label="End Date"
-//                   value={selectedDates[1]}
-//                   onChange={(newValue) => setSelectedDates([selectedDates[0], newValue])}
-//                   slotProps={{ 
-//                     textField: { 
-//                       size: 'small', 
-//                       fullWidth: true,
-//                       sx: { mb: 2 }
-//                     } 
-//                   }}
-//                 />
-//               </div>
-
-//               <Typography 
-//                 variant="subtitle2" 
-//                 sx={{ 
-//                   mt: 2, 
-//                   mb: 1,
-//                   color: '#555',
-//                   fontWeight: 'bold'
-//                 }}
-//               >
-//                 Variation Range (kg)
-//               </Typography>
-//               <div className="variation-filter">
-//                 <TextField
-//                   label="From"
-//                   type="number"
-//                   value={variationRange[0] || ""}
-//                   onChange={(e) => setVariationRange([Math.max(0, e.target.value || 0), variationRange[1]])}
-//                   size="small"
-//                   InputProps={{
-//                     inputProps: { min: 0, step: 0.1 }
-//                   }}
-//                 />
-//                 <TextField
-//                   label="To"
-//                   type="number"
-//                   value={variationRange[1] || ""}
-//                   onChange={(e) => setVariationRange([variationRange[0], Math.max(0, e.target.value || 0)])}
-//                   size="small"
-//                   InputProps={{
-//                     inputProps: { min: 0, step: 0.1 }
-//                   }}
-//                 />
-//               </div>
-//             </LocalizationProvider>
-
-//             <Divider sx={{ my: 3 }} />
-
-//             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-//               <Button 
-//                 variant="outlined" 
-//                 onClick={handleFilterClose}
-//                 sx={{ borderRadius: '20px' }}
-//               >
-//                 Cancel
-//               </Button>
-//               <Button 
-//                 variant="contained" 
-//                 color="primary" 
-//                 onClick={applyFilters}
-//                 startIcon={<FilterAltIcon />}
-//                 sx={{ 
-//                   borderRadius: '20px',
-//                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-//                 }}
-//               >
-//                 Apply Filters
-//               </Button>
-//             </Box>
-//           </Paper>
-//         </Popover>
-//       </Paper>
-//     </Container>
-//   );
-// };
-
-// export default HomePage;
-
-
-
-
-
-
 import React, { useState, useRef, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -965,8 +20,6 @@ import Fade from "@mui/material/Fade";
 import Tooltip from "@mui/material/Tooltip";
 import Badge from "@mui/material/Badge";
 import Alert from "@mui/material/Alert";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
 
 // Import Material UI icons
@@ -996,12 +49,6 @@ const HomePage = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
   const filterRef = useRef(null);
   const rowsPerPage = 10;
-  
-  // Use theme and media queries for responsive design
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const columnNames = [
     "Date",
@@ -1300,13 +347,6 @@ const HomePage = () => {
     return '#6c757d';
   };
 
-  // Determine search bar width based on screen size
-  const getSearchBarWidth = () => {
-    if (isMobile) return '100%';
-    if (isTablet) return '180px';
-    return '240px';
-  };
-
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
       <Paper 
@@ -1322,7 +362,7 @@ const HomePage = () => {
         }}
       >
         <Box sx={{ 
-          p: { xs: 2, sm: 3 }, 
+          p: 3, 
           background: 'linear-gradient(120deg, #0056b3, #0077cc)',
           color: 'white'
         }}>
@@ -1334,8 +374,7 @@ const HomePage = () => {
               mb: 1,
               display: 'flex',
               alignItems: 'center',
-              gap: 1,
-              fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              gap: 1
             }}
           >
             <TuneIcon /> Cylinder Quality Control Report
@@ -1345,14 +384,13 @@ const HomePage = () => {
           </Typography>
         </Box>
         
-        <Box sx={{ p: { xs: 2, sm: 3 }, bgcolor: '#f8f9fa' }}>
-          {/* Top controls section with responsive layout */}
+        <Box sx={{ p: 3, bgcolor: '#f8f9fa' }}>
           <Box sx={{ 
             display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' },
-            alignItems: { xs: 'flex-start', md: 'center' }, 
+            alignItems: 'center', 
             mb: 3, 
-            gap: { xs: 2, sm: 2 },
+            flexWrap: 'wrap', 
+            gap: 2,
             justifyContent: 'space-between'
           }}>
             <Tooltip title="Click to change date range">
@@ -1366,34 +404,28 @@ const HomePage = () => {
                   height: '40px', 
                   borderRadius: '20px',
                   px: 1,
-                  width: { xs: '100%', sm: 'auto' },
                   '& .MuiChip-label': { 
                     fontWeight: 'medium',
-                    fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                    whiteSpace: 'normal',
-                    overflow: 'visible'
+                    fontSize: '0.9rem'
                   }
                 }}
               />
             </Tooltip>
             
-            {/* Search and action buttons with responsive layout */}
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: { xs: 1, sm: 1.5 },
-              flexWrap: 'wrap',
-              width: { xs: '100%', md: 'auto' }
+              gap: 1.5,
+              flexWrap: 'wrap'
             }}>
               <TextField
-                placeholder={isMobile ? "Search..." : "Search by Cylinder Sr. No."}
+                placeholder="Search by Cylinder Sr. No."
                 value={searchQuery}
                 onChange={handleSearch}
                 variant="outlined"
                 size="small"
                 sx={{ 
-                  width: getSearchBarWidth(),
-                  flexGrow: { xs: 1, md: 0 },
+                  width: '240px',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '20px',
                     bgcolor: 'white'
@@ -1408,88 +440,73 @@ const HomePage = () => {
                 }}
               />
               
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 1,
-                flexWrap: 'wrap',
-                justifyContent: { xs: 'space-between', sm: 'flex-start' },
-                width: { xs: '100%', sm: 'auto' }
-              }}>
-                <Tooltip title="Open filter options">
-                  <Badge badgeContent={activeFilters} color="error" overlap="circular">
-                    <Button
-                      variant="contained"
-                      startIcon={!isMobile && <FilterAltIcon />}
-                      onClick={handleFilterClick}
-                      ref={filterRef}
-                      color="primary"
-                      size={isMobile ? "small" : "medium"}
-                      sx={{ 
-                        borderRadius: '20px',
-                        px: { xs: 1.5, sm: 2 },
-                        minWidth: { xs: 0, sm: '80px' },
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                      }}
-                    >
-                      {isMobile ? <FilterAltIcon fontSize="small" /> : "FILTER"}
-                    </Button>
-                  </Badge>
-                </Tooltip>
-                
-                <Tooltip title="Reset all filters">
-                  <Button
-                    variant="outlined"
-                    startIcon={!isMobile && <RestartAltIcon />}
-                    onClick={handleReset}
-                    color="secondary"
-                    size={isMobile ? "small" : "medium"}
-                    sx={{ 
-                      borderRadius: '20px',
-                      px: { xs: 1.5, sm: 2 },
-                      minWidth: { xs: 0, sm: '80px' }
-                    }}
-                  >
-                    {isMobile ? <RestartAltIcon fontSize="small" /> : "RESET"}
-                  </Button>
-                </Tooltip>
-                
-                <Tooltip title="Export data to Excel">
+              <Tooltip title="Open filter options">
+                <Badge badgeContent={activeFilters} color="error" overlap="circular">
                   <Button
                     variant="contained"
-                    startIcon={!isMobile && <FileDownloadIcon />}
-                    onClick={handleDownload}
-                    color="success"
-                    size={isMobile ? "small" : "medium"}
+                    startIcon={<FilterAltIcon />}
+                    onClick={handleFilterClick}
+                    ref={filterRef}
+                    color="primary"
                     sx={{ 
                       borderRadius: '20px',
-                      px: { xs: 1.5, sm: 2 },
-                      minWidth: { xs: 0, sm: '80px' },
-                      bgcolor: '#28a745',
+                      px: 2,
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                     }}
                   >
-                    {isMobile ? <FileDownloadIcon fontSize="small" /> : "EXPORT"}
+                    FILTER
                   </Button>
-                </Tooltip>
-                
-                <Tooltip title="Refresh data">
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={fetchData}
-                    size={isMobile ? "small" : "medium"}
-                    sx={{ 
-                      minWidth: { xs: '32px', sm: '40px' },
-                      width: { xs: '32px', sm: '40px' },
-                      height: { xs: '32px', sm: '40px' },
-                      borderRadius: '50%',
-                      p: 0
-                    }}
-                  >
-                    <RefreshIcon fontSize={isMobile ? "small" : "medium"} />
-                  </Button>
-                </Tooltip>
-              </Box>
+                </Badge>
+              </Tooltip>
+              
+              <Tooltip title="Reset all filters">
+                <Button
+                  variant="outlined"
+                  startIcon={<RestartAltIcon />}
+                  onClick={handleReset}
+                  color="secondary"
+                  sx={{ 
+                    borderRadius: '20px',
+                    px: 2
+                  }}
+                >
+                  RESET
+                </Button>
+              </Tooltip>
+              
+              <Tooltip title="Export data to Excel">
+                <Button
+                  variant="contained"
+                  startIcon={<FileDownloadIcon />}
+                  onClick={handleDownload}
+                  color="success"
+                  sx={{ 
+                    borderRadius: '20px',
+                    px: 2,
+                    bgcolor: '#28a745',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  EXPORT
+                </Button>
+              </Tooltip>
+              
+              <Tooltip title="Refresh data">
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={fetchData}
+                  sx={{ 
+                    minWidth: '40px',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    p: 0
+                  }}
+                >
+                  <RefreshIcon />
+                </Button>
+              </Tooltip>
             </Box>
           </Box>
         </Box>
@@ -1528,7 +545,7 @@ const HomePage = () => {
         {!isLoading && dataLoaded && filteredBySearch.length > 0 && (
           <Fade in={!isLoading}>
             <Box>
-              <Paper elevation={0} sx={{ mx: { xs: 1, sm: 3 }, mb: 3, overflow: 'hidden', borderRadius: 2, border: '1px solid #e0e0e0' }}>
+              <Paper elevation={0} sx={{ mx: 3, mb: 3, overflow: 'hidden', borderRadius: 2, border: '1px solid #e0e0e0' }}>
                 <div className="table-wrapper">
                   <div className="frozen-columns">
                     <table>
@@ -1642,59 +659,21 @@ const HomePage = () => {
                 </div>
               </Paper>
 
-              <Box sx={{ 
-                display: 'flex', 
-                flexDirection: { xs: 'column', sm: 'row' },
-                justifyContent: 'space-between', 
-                alignItems: { xs: 'center', sm: 'center' }, 
-                px: { xs: 2, sm: 3 }, 
-                mb: 3,
-                gap: 2
-              }}>
-                <Typography variant="body2" color="text.secondary" sx={{ order: { xs: 2, sm: 1 } }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, mb: 3 }}>
+                <Typography variant="body2" color="text.secondary">
                   Showing {indexOfFirstRow + 1}-{Math.min(indexOfLastRow, filteredBySearch.length)} of {filteredBySearch.length} records
                 </Typography>
                 
-                <Stack 
-                  direction="row" 
-                  spacing={1} 
-                  sx={{ 
-                    order: { xs: 1, sm: 2 },
-                    flexWrap: 'wrap',
-                    justifyContent: 'center'
-                  }}
-                >
+                <Stack direction="row" spacing={1}>
                   <Button
                     variant="outlined"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    sx={{ 
-                      borderRadius: '20px', 
-                      minWidth: { xs: '36px', sm: '40px' },
-                      px: { xs: 1, sm: 1.5 }
-                    }}
+                    sx={{ borderRadius: '20px', minWidth: '40px' }}
                   >
                     Prev
                   </Button>
-                  
-                  {/* Responsive pagination */}
-                  {isMobile ? (
-                    // On mobile, just show current page indicator
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      sx={{ 
-                        borderRadius: '50%', 
-                        minWidth: '36px',
-                        width: '36px',
-                        height: '36px',
-                        p: 0
-                      }}
-                    >
-                      {currentPage}
-                    </Button>
-                  ) : totalPages <= 5 ? (
-                    // On larger screens with few pages, show all page numbers
+                  {totalPages <= 5 ? (
                     [...Array(totalPages).keys()].map((_, index) => (
                       <Button
                         key={index}
@@ -1713,7 +692,6 @@ const HomePage = () => {
                       </Button>
                     ))
                   ) : (
-                    // On larger screens with many pages, show limited page numbers with ellipsis
                     <>
                       {currentPage > 2 && (
                         <Button
@@ -1806,16 +784,11 @@ const HomePage = () => {
                       )}
                     </>
                   )}
-                  
                   <Button
                     variant="outlined"
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    sx={{ 
-                      borderRadius: '20px', 
-                      minWidth: { xs: '36px', sm: '40px' },
-                      px: { xs: 1, sm: 1.5 }
-                    }}
+                    sx={{ borderRadius: '20px', minWidth: '40px' }}
                   >
                     Next
                   </Button>
@@ -1841,12 +814,11 @@ const HomePage = () => {
           PaperProps={{
             sx: { 
               borderRadius: 2,
-              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              width: { xs: '280px', sm: '350px' }
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
             }
           }}
         >
-          <Paper sx={{ p: { xs: 2, sm: 3 }, width: '100%' }}>
+          <Paper sx={{ p: 3, width: '350px' }}>
             <Typography 
               variant="h6" 
               sx={{ 
@@ -1854,8 +826,7 @@ const HomePage = () => {
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 1,
-                color: '#0056b3',
-                fontSize: { xs: '1.1rem', sm: '1.25rem' }
+                color: '#0056b3'
               }}
             >
               <FilterAltIcon /> Filter Options
@@ -1974,3 +945,439 @@ export default HomePage;
 
 
 
+
+
+
+
+
+
+
+// import React, { useState, useRef } from "react";
+// import * as XLSX from "xlsx";
+// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import CircularProgress from "@mui/material/CircularProgress";
+// import TextField from "@mui/material/TextField";
+// import Button from "@mui/material/Button";
+// import Box from "@mui/material/Box";
+// import Paper from "@mui/material/Paper";
+// import Typography from "@mui/material/Typography";
+// import Stack from "@mui/material/Stack";
+// import InputAdornment from "@mui/material/InputAdornment";
+// import Chip from "@mui/material/Chip";
+// import Popover from "@mui/material/Popover";
+// import ClickAwayListener from "@mui/material/ClickAwayListener";
+// // Import Material UI icons directly
+// import SearchIcon from "@mui/icons-material/Search";
+// import FilterAltIcon from "@mui/icons-material/FilterAlt";
+// import RestartAltIcon from "@mui/icons-material/RestartAlt";
+// import FileDownloadIcon from "@mui/icons-material/FileDownload";
+// import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+// import dayjs from "dayjs";
+// import "./HomePage.css";
+
+// const HomePage = () => {
+//   const [data, setData] = useState([]);
+//   const [filteredData, setFilteredData] = useState([]);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [selectedDates, setSelectedDates] = useState([dayjs(), dayjs()]);
+//   const [showPicker, setShowPicker] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [variationRange, setVariationRange] = useState([null, null]);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
+//   const filterRef = useRef(null);
+//   const rowsPerPage = 10;
+
+//   const columnNames = [
+//     "Date",
+//     "Time",
+//     "Cylinder Sr. No.",
+//     "Quarter",
+//     "DUE YEAR",
+//     "DUE DATE",
+//     "SET WEIGHT(kg)",
+//     "TARE WEIGHT(kg)",
+//     "NET WEIGHT()",
+//     "GROSS WEIGHT(kg)",
+//     "VARIATION(kg)",
+//     "Weight Status",
+//     "VALUE LEAK",
+//     "ORING LEAK",
+//     "SEAL",
+//     "BUNG STATUS",
+//     "CYLINDER STATUS",
+//   ];
+
+//   // Mock data for demonstration
+//   const mockData = [
+//     {
+//       createdAt: dayjs().format("YYYY-MM-DD"),
+//       time: "09:00:00",
+//       cylinderSrNo: "CYL001",
+//       quarter: "Q1",
+//       dueYear: "2025",
+//       dueDate: "2025-12-31",
+//       setWeight: "14.2",
+//       tareWeight: "13.2",
+//       netWeight: "1.0",
+//       grossWeight: "14.2",
+//       variation: "0.0",
+//       weightStatus: "OK",
+//       valueLeak: "NO",
+//       oringLeak: "NO",
+//       seal: "OK",
+//       bungStatus: "OK",
+//       cylinderStatus: "PASS"
+//     },
+//     // Add more mock data as needed
+//   ];
+
+//   const fetchData = async () => {
+//     setIsLoading(true);
+//     try {
+//       // Simulate API call with mock data
+//       setTimeout(() => {
+//         setData(mockData);
+//         setFilteredData(mockData);
+//         setIsLoading(false);
+//       }, 1000);
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//       alert("Failed to fetch data. Please try again.");
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const applyFilters = () => {
+//     fetchData();
+//     setShowPicker(false);
+//     setFilterAnchorEl(null);
+//     setCurrentPage(1);
+//   };
+
+//   const handleSearch = (event) => {
+//     setSearchQuery(event.target.value);
+//   };
+
+//   const filteredBySearch = filteredData.filter((row) =>
+//     row.cylinderSrNo.toLowerCase().includes(searchQuery.toLowerCase())
+//   );
+
+//   const totalPages = Math.ceil(filteredBySearch.length / rowsPerPage);
+//   const indexOfLastRow = currentPage * rowsPerPage;
+//   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+//   const currentTableData = filteredBySearch.slice(indexOfFirstRow, indexOfLastRow);
+
+//   const handleNextPage = () => {
+//     if (currentPage < totalPages) setCurrentPage((prevPage) => prevPage + 1);
+//   };
+
+//   const handlePreviousPage = () => {
+//     if (currentPage > 1) setCurrentPage((prevPage) => prevPage - 1);
+//   };
+
+//   const handlePageChange = (page) => {
+//     setCurrentPage(page);
+//   };
+
+//   const handleDownload = () => {
+//     const workbook = XLSX.utils.book_new();
+//     const worksheetData = [
+//       columnNames,
+//       ...filteredBySearch.map((item) => [
+//         item.date || "N/A",
+//         item.time || "N/A",
+//         item.cylinderSrNo || "N/A",
+//         item.quarter || "N/A",
+//         item.dueYear || "N/A",
+//         item.dueDate || "N/A",
+//         item.setWeight || "N/A",
+//         item.tareWeight || "N/A",
+//         item.netWeight || "N/A",
+//         item.grossWeight || "N/A",
+//         item.variation || "N/A",
+//         item.weightStatus || "N/A",
+//         item.valueLeak || "N/A",
+//         item.oringLeak || "N/A",
+//         item.seal || "N/A",
+//         item.bungStatus || "N/A",
+//         item.cylinderStatus || "N/A",
+//       ]),
+//     ];
+
+//     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+//     XLSX.utils.book_append_sheet(workbook, worksheet, "SQC Report");
+//     XLSX.writeFile(workbook, "SQC_Report.xlsx");
+//   };
+
+//   const handleReset = () => {
+//     setFilteredData([]);
+//     setData([]);
+//     setSelectedDates([dayjs(), dayjs()]);
+//     setSearchQuery("");
+//     setVariationRange([null, null]);
+//     setShowPicker(false);
+//     setFilterAnchorEl(null);
+//   };
+
+//   const handleFilterClick = (event) => {
+//     setFilterAnchorEl(event.currentTarget);
+//   };
+
+//   const handleFilterClose = () => {
+//     setFilterAnchorEl(null);
+//   };
+
+//   const handleDateRangeClick = () => {
+//     // Open the filter dropdown when date range is clicked
+//     setFilterAnchorEl(filterRef.current);
+//   };
+
+//   const open = Boolean(filterAnchorEl);
+//   const id = open ? 'filter-popover' : undefined;
+
+//   return (
+//     <Paper elevation={3} className="table-container">
+//       <Box sx={{ p: 2 }}>
+//         <Typography variant="h5" component="h2" sx={{ mb: 2, fontWeight: 'bold', color: '#0056b3' }}>
+//           Cylinder Quality Control Report
+//         </Typography>
+        
+//         <Box sx={{ 
+//           display: 'flex', 
+//           alignItems: 'center', 
+//           mb: 3, 
+//           flexWrap: 'wrap', 
+//           gap: 1,
+//           justifyContent: 'space-between'
+//         }}>
+//           <Chip
+//             label={`Date Range: ${selectedDates[0].format("YYYY-MM-DD")} to ${selectedDates[1].format("YYYY-MM-DD")}`}
+//             onClick={handleDateRangeClick}
+//             color="default"
+//             icon={<CalendarMonthIcon />}
+//             sx={{ 
+//               height: '36px', 
+//               borderRadius: '4px',
+//               backgroundColor: '#f5f5f5',
+//               '& .MuiChip-label': { fontWeight: 'medium' }
+//             }}
+//           />
+          
+//           <Box sx={{ 
+//             display: 'flex', 
+//             alignItems: 'center', 
+//             gap: 1,
+//             flexWrap: 'wrap'
+//           }}>
+//             <TextField
+//               placeholder="Search by Cylinder Sr. No."
+//               value={searchQuery}
+//               onChange={handleSearch}
+//               variant="outlined"
+//               size="small"
+//               sx={{ width: '240px' }}
+//               InputProps={{
+//                 startAdornment: (
+//                   <InputAdornment position="start">
+//                     <SearchIcon />
+//                   </InputAdornment>
+//                 ),
+//               }}
+//             />
+            
+//             <Chip
+//               label="FILTER"
+//               icon={<FilterAltIcon />}
+//               onClick={handleFilterClick}
+//               color="primary"
+//               ref={filterRef}
+//               sx={{ height: '36px', borderRadius: '4px' }}
+//             />
+            
+//             <Chip
+//               label="RESET"
+//               icon={<RestartAltIcon />}
+//               onClick={handleReset}
+//               color="secondary"
+//               sx={{ height: '36px', borderRadius: '4px' }}
+//             />
+            
+//             <Chip
+//               label="EXPORT"
+//               icon={<FileDownloadIcon />}
+//               onClick={handleDownload}
+//               color="success"
+//               sx={{ height: '36px', borderRadius: '4px' }}
+//             />
+//           </Box>
+//         </Box>
+//       </Box>
+
+//       {isLoading && (
+//         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+//           <CircularProgress />
+//         </Box>
+//       )}
+
+//       <Popover
+//         id={id}
+//         open={open}
+//         anchorEl={filterAnchorEl}
+//         onClose={handleFilterClose}
+//         anchorOrigin={{
+//           vertical: 'bottom',
+//           horizontal: 'left',
+//         }}
+//         transformOrigin={{
+//           vertical: 'top',
+//           horizontal: 'left',
+//         }}
+//       >
+//         <Paper sx={{ p: 2, width: '320px' }}>
+//           <Typography variant="h6" sx={{ mb: 2 }}>Filter Options</Typography>
+          
+//           <LocalizationProvider dateAdapter={AdapterDayjs}>
+//             <div className="box-date">
+//               <DatePicker
+//                 label="Start Date"
+//                 value={selectedDates[0]}
+//                 onChange={(newValue) => setSelectedDates([newValue, selectedDates[1]])}
+//                 slotProps={{ textField: { size: 'small', fullWidth: true } }}
+//               />
+//               <DatePicker
+//                 label="End Date"
+//                 value={selectedDates[1]}
+//                 onChange={(newValue) => setSelectedDates([selectedDates[0], newValue])}
+//                 slotProps={{ textField: { size: 'small', fullWidth: true } }}
+//               />
+//             </div>
+
+//             <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Variation Range (kg)</Typography>
+//             <div className="variation-filter">
+//               <TextField
+//                 label="From"
+//                 type="number"
+//                 value={variationRange[0] || ""}
+//                 onChange={(e) => setVariationRange([Math.max(0, e.target.value || 0), variationRange[1]])}
+//                 size="small"
+//               />
+//               <TextField
+//                 label="To"
+//                 type="number"
+//                 value={variationRange[1] || ""}
+//                 onChange={(e) => setVariationRange([variationRange[0], Math.max(0, e.target.value || 0)])}
+//                 size="small"
+//               />
+//             </div>
+//           </LocalizationProvider>
+
+//           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+//             <Button 
+//               variant="outlined" 
+//               onClick={handleFilterClose}
+//             >
+//               Cancel
+//             </Button>
+//             <Button 
+//               variant="contained" 
+//               color="primary" 
+//               onClick={applyFilters}
+//             >
+//               Apply Filters
+//             </Button>
+//           </Box>
+//         </Paper>
+//       </Popover>
+
+//       <Paper elevation={2} sx={{ mx: 2, mb: 2, overflow: 'hidden' }}>
+//         <div className="table-wrapper">
+//           <div className="frozen-columns">
+//             <table>
+//               <thead>
+//                 <tr>
+//                   {columnNames.slice(0, 3).map((name, index) => (
+//                     <th key={index}>{name}</th>
+//                   ))}
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {currentTableData.map((row, rowIndex) => (
+//                   <tr key={rowIndex}>
+//                     <td>{dayjs(row.createdAt).format("DD-MM-YYYY")}</td>
+//                     <td>{dayjs(row.time, "HH:mm:ss").format("HH:mm")}</td>
+//                     <td>{row.cylinderSrNo}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//           <div className="scrollable-table">
+//             <table>
+//               <thead>
+//                 <tr>
+//                   {columnNames.slice(3).map((name, index) => (
+//                     <th key={index}>{name}</th>
+//                   ))}
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {currentTableData.map((row, rowIndex) => (
+//                   <tr key={rowIndex}>
+//                     <td>{row.quarter}</td>
+//                     <td>{row.dueYear}</td>
+//                     <td>{row.dueDate}</td>
+//                     <td>{row.setWeight}</td>
+//                     <td>{row.tareWeight}</td>
+//                     <td>{row.netWeight}</td>
+//                     <td>{row.grossWeight}</td>
+//                     <td>{row.variation}</td>
+//                     <td>{row.weightStatus}</td>
+//                     <td>{row.valueLeak}</td>
+//                     <td>{row.oringLeak}</td>
+//                     <td>{row.seal}</td>
+//                     <td>{row.bungStatus}</td>
+//                     <td>{row.cylinderStatus}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         </div>
+//       </Paper>
+
+//       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+//         <Stack direction="row" spacing={1}>
+//           <Button
+//             variant="outlined"
+//             onClick={handlePreviousPage}
+//             disabled={currentPage === 1}
+//           >
+//             Previous
+//           </Button>
+//           {[...Array(totalPages).keys()].map((_, index) => (
+//             <Button
+//               key={index}
+//               variant={currentPage === index + 1 ? "contained" : "outlined"}
+//               color="primary"
+//               onClick={() => handlePageChange(index + 1)}
+//             >
+//               {index + 1}
+//             </Button>
+//           ))}
+//           <Button
+//             variant="outlined"
+//             onClick={handleNextPage}
+//             disabled={currentPage === totalPages}
+//           >
+//             Next
+//           </Button>
+//         </Stack>
+//       </Box>
+//     </Paper>
+//   );
+// };
+
+// export default HomePage;
