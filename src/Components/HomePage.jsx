@@ -782,7 +782,6 @@
 //     setSelectedDates([dayjs(), dayjs()]);
 //     setSearchQuery("");
 //     setVariationRange([null, null]);
-//     setFilterAnchorEl(null);
 //     setCurrentPage(1);
 //     setActiveFilters(0);
 //   };
@@ -934,21 +933,6 @@
 //                 </Badge>
 //               </Tooltip>
               
-//               <Tooltip title="Reset all filters">
-//                 <Button
-//                   variant="outlined"
-//                   startIcon={<RestartAltIcon />}
-//                   onClick={handleReset}
-//                   color="secondary"
-//                   sx={{ 
-//                     borderRadius: '20px',
-//                     px: 2
-//                   }}
-//                 >
-//                   RESET
-//                 </Button>
-//               </Tooltip>
-              
 //               <Tooltip title="Export data to Excel">
 //                 <Button
 //                   variant="contained"
@@ -1051,7 +1035,7 @@
 //                       </tbody>
 //                     </table>
 //                   </div>
-//                   <div className="scrollable-table">
+//                   <div className="able-table">
 //                     <table>
 //                       <thead>
 //                         <tr>
@@ -1384,13 +1368,21 @@
 
 //             <Divider sx={{ my: 3 }} />
 
-//             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+//             <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
 //               <Button 
 //                 variant="outlined" 
-//                 onClick={handleFilterClose}
-//                 sx={{ borderRadius: '20px' }}
+//                 color="secondary"
+//                 onClick={() => {
+//                   handleReset();
+//                   handleFilterClose();
+//                 }}
+//                 startIcon={<RestartAltIcon />}
+//                 sx={{ 
+//                   borderRadius: '20px',
+//                   flex: 1
+//                 }}
 //               >
-//                 Cancel
+//                 Reset 
 //               </Button>
 //               <Button 
 //                 variant="contained" 
@@ -1399,7 +1391,8 @@
 //                 startIcon={<FilterAltIcon />}
 //                 sx={{ 
 //                   borderRadius: '20px',
-//                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+//                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+//                   flex: 1
 //                 }}
 //               >
 //                 Apply Filters
@@ -1413,6 +1406,11 @@
 // };
 
 // export default HomePage;
+
+
+
+
+
 
 
 
@@ -1450,6 +1448,11 @@ import Tooltip from "@mui/material/Tooltip";
 import Badge from "@mui/material/Badge";
 import Alert from "@mui/material/Alert";
 import { motion } from "framer-motion";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Grid from "@mui/material/Grid";
+import Avatar from "@mui/material/Avatar";
+import LinearProgress from "@mui/material/LinearProgress";
 
 // Import Material UI icons
 import SearchIcon from "@mui/icons-material/Search";
@@ -1462,6 +1465,8 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import InfoIcon from "@mui/icons-material/Info";
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import WarningIcon from "@mui/icons-material/Warning";
 import dayjs from "dayjs";
 import "./HomePage.css";
 
@@ -1476,6 +1481,12 @@ const HomePage = () => {
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
   const [activeFilters, setActiveFilters] = useState(0);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [stats, setStats] = useState({
+    total: 0,
+    pass: 0,
+    fail: 0,
+    passRate: 0
+  });
   const filterRef = useRef(null);
   const rowsPerPage = 10;
 
@@ -2078,6 +2089,20 @@ const HomePage = () => {
     fetchData();
   }, []);
 
+  const calculateStats = (data) => {
+    const total = data.length;
+    const pass = data.filter(item => item.cylinderStatus === 'PASS').length;
+    const fail = total - pass;
+    const passRate = total > 0 ? Math.round((pass / total) * 100) : 0;
+    
+    setStats({
+      total,
+      pass,
+      fail,
+      passRate
+    });
+  };
+
   const fetchData = async () => {
     setIsLoading(true);
     try {
@@ -2085,6 +2110,7 @@ const HomePage = () => {
       setTimeout(() => {
         setData(mockData);
         setFilteredData(mockData);
+        calculateStats(mockData);
         setIsLoading(false);
         setDataLoaded(true);
         
@@ -2127,6 +2153,7 @@ const HomePage = () => {
       }
       
       setFilteredData(filtered);
+      calculateStats(filtered);
       setIsLoading(false);
       
       // Count active filters
@@ -2213,6 +2240,7 @@ const HomePage = () => {
     setVariationRange([null, null]);
     setCurrentPage(1);
     setActiveFilters(0);
+    calculateStats(mockData);
   };
 
   const handleFilterClick = (event) => {
@@ -2287,121 +2315,235 @@ const HomePage = () => {
           </Typography>
         </Box>
         
-        <Box sx={{ p: 3, bgcolor: '#f8f9fa' }}>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            mb: 3, 
-            flexWrap: 'wrap', 
-            gap: 2,
-            justifyContent: 'space-between'
-          }}>
-            <Tooltip title="Click to change date range">
-              <Chip
-                label={`Date Range: ${selectedDates[0].format("DD MMM YYYY")} - ${selectedDates[1].format("DD MMM YYYY")}`}
-                onClick={handleDateRangeClick}
-                color="primary"
-                variant="outlined"
-                icon={<CalendarMonthIcon />}
-                sx={{ 
-                  height: '40px', 
-                  borderRadius: '20px',
-                  px: 1,
-                  '& .MuiChip-label': { 
-                    fontWeight: 'medium',
-                    fontSize: '0.9rem'
-                  }
-                }}
-              />
-            </Tooltip>
+        {/* Stats Cards */}
+        {!isLoading && dataLoaded && (
+          <Box sx={{ p: 3, bgcolor: '#f8f9fa' }}>
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: '#0056b3', mr: 1.5 }}>
+                        <AssessmentIcon />
+                      </Avatar>
+                      <Typography variant="h6" component="div">
+                        Total Cylinders
+                      </Typography>
+                    </Box>
+                    <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
+                      {stats.total}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Total cylinders in current view
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: '#28a745', mr: 1.5 }}>
+                        <CheckCircleIcon />
+                      </Avatar>
+                      <Typography variant="h6" component="div">
+                        Passed
+                      </Typography>
+                    </Box>
+                    <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: '#28a745', mb: 1 }}>
+                      {stats.pass}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Cylinders that passed quality check
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: '#dc3545', mr: 1.5 }}>
+                        <ErrorIcon />
+                      </Avatar>
+                      <Typography variant="h6" component="div">
+                        Failed
+                      </Typography>
+                    </Box>
+                    <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: '#dc3545', mb: 1 }}>
+                      {stats.fail}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Cylinders that failed quality check
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: stats.passRate > 70 ? '#28a745' : stats.passRate > 40 ? '#ffc107' : '#dc3545', mr: 1.5 }}>
+                        {stats.passRate > 70 ? <CheckCircleIcon /> : <WarningIcon />}
+                      </Avatar>
+                      <Typography variant="h6" component="div">
+                        Pass Rate
+                      </Typography>
+                    </Box>
+                    <Typography variant="h4" component="div" sx={{ 
+                      fontWeight: 'bold', 
+                      color: stats.passRate > 70 ? '#28a745' : stats.passRate > 40 ? '#ffc107' : '#dc3545',
+                      mb: 1 
+                    }}>
+                      {stats.passRate}%
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={stats.passRate} 
+                      sx={{ 
+                        height: 8, 
+                        borderRadius: 4,
+                        bgcolor: '#e9ecef',
+                        '& .MuiLinearProgress-bar': {
+                          bgcolor: stats.passRate > 70 ? '#28a745' : stats.passRate > 40 ? '#ffc107' : '#dc3545'
+                        }
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
             
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: 1.5,
-              flexWrap: 'wrap'
+              flexWrap: 'wrap', 
+              gap: 2,
+              justifyContent: 'space-between'
             }}>
-              <TextField
-                placeholder="Search by Cylinder Sr. No."
-                value={searchQuery}
-                onChange={handleSearch}
-                variant="outlined"
-                size="small"
-                sx={{ 
-                  width: '240px',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '20px',
-                    bgcolor: 'white'
-                  }
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color="primary" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <Tooltip title="Click to change date range">
+                <Chip
+                  label={`Date Range: ${selectedDates[0].format("DD MMM YYYY")} - ${selectedDates[1].format("DD MMM YYYY")}`}
+                  onClick={handleDateRangeClick}
+                  color="primary"
+                  variant="outlined"
+                  icon={<CalendarMonthIcon />}
+                  sx={{ 
+                    height: '36px', 
+                    borderRadius: '18px',
+                    px: 1,
+                    '& .MuiChip-label': { 
+                      fontWeight: 'medium',
+                      fontSize: '0.85rem'
+                    }
+                  }}
+                />
+              </Tooltip>
               
-              <Tooltip title="Open filter options">
-                <Badge badgeContent={activeFilters} color="error" overlap="circular">
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1.5,
+                flexWrap: 'wrap'
+              }}>
+                <TextField
+                  placeholder="Search by Cylinder Sr. No."
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  variant="outlined"
+                  size="small"
+                  sx={{ 
+                    width: '220px',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '18px',
+                      bgcolor: 'white',
+                      height: '36px'
+                    }
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="primary" fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                
+                <Tooltip title="Open filter options">
+                  <Badge badgeContent={activeFilters} color="error" overlap="circular">
+                    <Button
+                      variant="contained"
+                      startIcon={<FilterAltIcon />}
+                      onClick={handleFilterClick}
+                      ref={filterRef}
+                      color="primary"
+                      size="small"
+                      sx={{ 
+                        borderRadius: '18px',
+                        px: 1.5,
+                        py: 0.5,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        textTransform: 'none',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      Filter
+                    </Button>
+                  </Badge>
+                </Tooltip>
+                
+                <Tooltip title="Export data to Excel">
                   <Button
                     variant="contained"
-                    startIcon={<FilterAltIcon />}
-                    onClick={handleFilterClick}
-                    ref={filterRef}
-                    color="primary"
+                    startIcon={<FileDownloadIcon />}
+                    onClick={handleDownload}
+                    color="success"
+                    size="small"
                     sx={{ 
-                      borderRadius: '20px',
-                      px: 2,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      borderRadius: '18px',
+                      px: 1.5,
+                      py: 0.5,
+                      bgcolor: '#28a745',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      textTransform: 'none',
+                      fontSize: '0.85rem'
                     }}
                   >
-                    FILTER
+                    Export
                   </Button>
-                </Badge>
-              </Tooltip>
-              
-              <Tooltip title="Export data to Excel">
-                <Button
-                  variant="contained"
-                  startIcon={<FileDownloadIcon />}
-                  onClick={handleDownload}
-                  color="success"
-                  sx={{ 
-                    borderRadius: '20px',
-                    px: 2,
-                    bgcolor: '#28a745',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  EXPORT
-                </Button>
-              </Tooltip>
-              
-              <Tooltip title="Refresh data">
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={fetchData}
-                  sx={{ 
-                    minWidth: '40px',
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    p: 0
-                  }}
-                >
-                  <RefreshIcon />
-                </Button>
-              </Tooltip>
+                </Tooltip>
+                
+                <Tooltip title="Refresh data">
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={fetchData}
+                    size="small"
+                    sx={{ 
+                      minWidth: '36px',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      p: 0
+                    }}
+                  >
+                    <RefreshIcon fontSize="small" />
+                  </Button>
+                </Tooltip>
+              </Box>
             </Box>
           </Box>
-        </Box>
+        )}
 
         {isLoading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-            <CircularProgress size={60} thickness={4} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 8 }}>
+            <CircularProgress size={60} thickness={4} sx={{ mb: 3 }} />
+            <Typography variant="body1" color="text.secondary">
+              Loading data...
+            </Typography>
           </Box>
         )}
 
@@ -2493,7 +2635,7 @@ const HomePage = () => {
                             <td>{row.netWeight}</td>
                             <td>{row.grossWeight}</td>
                             <td>{row.variation}</td>
-                            <td style={{ 
+                 <td style={{ 
                               color: getCheckColor(row.weightStatus),
                               fontWeight: 'bold'
                             }}>
@@ -2557,7 +2699,8 @@ const HomePage = () => {
                     variant="outlined"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    sx={{ borderRadius: '20px', minWidth: '40px' }}
+                    sx={{ borderRadius: '18px', minWidth: '36px', py: 0.5, px: 1.5, fontSize: '0.85rem' }}
+                    size="small"
                   >
                     Prev
                   </Button>
@@ -2570,11 +2713,13 @@ const HomePage = () => {
                         onClick={() => handlePageChange(index + 1)}
                         sx={{ 
                           borderRadius: '50%', 
-                          minWidth: '40px',
-                          width: '40px',
-                          height: '40px',
-                          p: 0
+                          minWidth: '32px',
+                          width: '32px',
+                          height: '32px',
+                          p: 0,
+                          fontSize: '0.85rem'
                         }}
+                        size="small"
                       >
                         {index + 1}
                       </Button>
@@ -2588,18 +2733,20 @@ const HomePage = () => {
                           onClick={() => handlePageChange(1)}
                           sx={{ 
                             borderRadius: '50%', 
-                            minWidth: '40px',
-                            width: '40px',
-                            height: '40px',
-                            p: 0
+                            minWidth: '32px',
+                            width: '32px',
+                            height: '32px',
+                            p: 0,
+                            fontSize: '0.85rem'
                           }}
+                          size="small"
                         >
                           1
                         </Button>
                       )}
                       
                       {currentPage > 3 && (
-                        <Typography variant="body1" sx={{ alignSelf: 'center' }}>...</Typography>
+                        <Typography variant="body2" sx={{ alignSelf: 'center' }}>...</Typography>
                       )}
                       
                       {currentPage > 1 && (
@@ -2609,11 +2756,13 @@ const HomePage = () => {
                           onClick={() => handlePageChange(currentPage - 1)}
                           sx={{ 
                             borderRadius: '50%', 
-                            minWidth: '40px',
-                            width: '40px',
-                            height: '40px',
-                            p: 0
+                            minWidth: '32px',
+                            width: '32px',
+                            height: '32px',
+                            p: 0,
+                            fontSize: '0.85rem'
                           }}
+                          size="small"
                         >
                           {currentPage - 1}
                         </Button>
@@ -2624,11 +2773,13 @@ const HomePage = () => {
                         color="primary"
                         sx={{ 
                           borderRadius: '50%', 
-                          minWidth: '40px',
-                          width: '40px',
-                          height: '40px',
-                          p: 0
+                          minWidth: '32px',
+                          width: '32px',
+                          height: '32px',
+                          p: 0,
+                          fontSize: '0.85rem'
                         }}
+                        size="small"
                       >
                         {currentPage}
                       </Button>
@@ -2640,18 +2791,20 @@ const HomePage = () => {
                           onClick={() => handlePageChange(currentPage + 1)}
                           sx={{ 
                             borderRadius: '50%', 
-                            minWidth: '40px',
-                            width: '40px',
-                            height: '40px',
-                            p: 0
+                            minWidth: '32px',
+                            width: '32px',
+                            height: '32px',
+                            p: 0,
+                            fontSize: '0.85rem'
                           }}
+                          size="small"
                         >
                           {currentPage + 1}
                         </Button>
                       )}
                       
                       {currentPage < totalPages - 2 && (
-                        <Typography variant="body1" sx={{ alignSelf: 'center' }}>...</Typography>
+                        <Typography variant="body2" sx={{ alignSelf: 'center' }}>...</Typography>
                       )}
                       
                       {currentPage < totalPages - 1 && (
@@ -2661,11 +2814,13 @@ const HomePage = () => {
                           onClick={() => handlePageChange(totalPages)}
                           sx={{ 
                             borderRadius: '50%', 
-                            minWidth: '40px',
-                            width: '40px',
-                            height: '40px',
-                            p: 0
+                            minWidth: '32px',
+                            width: '32px',
+                            height: '32px',
+                            p: 0,
+                            fontSize: '0.85rem'
                           }}
+                          size="small"
                         >
                           {totalPages}
                         </Button>
@@ -2676,7 +2831,8 @@ const HomePage = () => {
                     variant="outlined"
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    sx={{ borderRadius: '20px', minWidth: '40px' }}
+                    sx={{ borderRadius: '18px', minWidth: '36px', py: 0.5, px: 1.5, fontSize: '0.85rem' }}
+                    size="small"
                   >
                     Next
                   </Button>
@@ -2714,7 +2870,8 @@ const HomePage = () => {
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 1,
-                color: '#0056b3'
+                color: '#0056b3',
+                fontSize: '1.1rem'
               }}
             >
               <FilterAltIcon /> Filter Options
@@ -2807,11 +2964,15 @@ const HomePage = () => {
                 }}
                 startIcon={<RestartAltIcon />}
                 sx={{ 
-                  borderRadius: '20px',
-                  flex: 1
+                  borderRadius: '18px',
+                  flex: 1,
+                  py: 0.5,
+                  fontSize: '0.85rem',
+                  textTransform: 'none'
                 }}
+                size="small"
               >
-                Reset 
+                Reset All
               </Button>
               <Button 
                 variant="contained" 
@@ -2819,10 +2980,14 @@ const HomePage = () => {
                 onClick={applyFilters}
                 startIcon={<FilterAltIcon />}
                 sx={{ 
-                  borderRadius: '20px',
+                  borderRadius: '18px',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                  flex: 1
+                  flex: 1,
+                  py: 0.5,
+                  fontSize: '0.85rem',
+                  textTransform: 'none'
                 }}
+                size="small"
               >
                 Apply Filters
               </Button>
@@ -2835,16 +3000,6 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-
-
-
-
-
-
-
-
-
 
 
 
