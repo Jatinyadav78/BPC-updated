@@ -269,6 +269,7 @@ export default function Login() {
       }).then(() => {
         navigate("/");
       });
+
     } else {
       Swal.fire({
         icon: "error",

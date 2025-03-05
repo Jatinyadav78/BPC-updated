@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -1379,8 +1378,12 @@ const HomePage = () => {
                 startIcon={<RestartAltIcon />}
                 sx={{ 
                   borderRadius: '20px',
-                  flex: 1
+                  flex: 1,
+                  py: 0.5,
+                  fontSize: '0.8rem',
+                  height: '32px'
                 }}
+                size="small"
               >
                 Reset 
               </Button>
@@ -1392,8 +1395,12 @@ const HomePage = () => {
                 sx={{ 
                   borderRadius: '20px',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                  flex: 1
+                  flex: 1,
+                  py: 0.5,
+                  fontSize: '0.8rem',
+                  height: '32px'
                 }}
+                size="small"
               >
                 Apply Filters
               </Button>
@@ -1406,20 +1413,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
