@@ -1413,3 +1413,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+/*sometimes we login on the login page and then weclick on dash board the page does not redirect to the dasboard instead it just stays on the login page resolve this issue and it just happens sometimes otherwise it normally redirects us to the dashboard .Also make PWA of this frontend. */
